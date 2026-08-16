@@ -1,3 +1,3 @@
 export async function GET() {
-  return Response.json({ status: "ok", product: "RightMark", mode: "simulation", capabilities: ["D1 persistence", "NOAA market data", "valuation", "stress testing", "underwriting", "offer matching"] });
+  return Response.json({ status: "ok", product: "RightMark", mode: "live public data + modeled financing", capabilities: ["NOAA 2026 holder lookup", "NOAA landings", "IPHC limits and price benchmark", "EIA weekly diesel", "D1 persistence", "modeled valuation", "stress testing", "indicative terms"] });
 }

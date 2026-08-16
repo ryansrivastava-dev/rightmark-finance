@@ -18,8 +18,8 @@ test("server-renders the complete RightMark product surface", async () => {
   const html = await response.text();
   assert.match(html, /<title>RightMark \| Turn rights into usable capital<\/title>/i);
   assert.match(html, /Turn overlooked rights into/);
-  assert.match(html, /Analyze my asset/);
-  assert.match(html, /SIMULATION MODE/);
+  assert.match(html, /Analyze a public record/);
+  assert.match(html, /LIVE DATA · MODELED OUTPUTS/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/);
 });
 
