@@ -78,6 +78,19 @@ pnpm dev
 
 Open the local URL printed by Vite.
 
+### Streamlit deployment
+
+RightMark also includes a standalone Streamlit entry point for Streamlit Community Cloud:
+
+```bash
+python -m pip install -r requirements.txt
+streamlit run streamlit_app.py
+```
+
+When creating a Streamlit Cloud app, select this repository and set the main file path to
+`streamlit_app.py`. An optional `EIA_API_KEY` can be added in Streamlit Secrets; the public demo
+key is used when it is not configured.
+
 The EIA public demo key works by default. To use your own EIA key locally:
 
 ```bash
