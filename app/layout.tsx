@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
   const origin = `${protocol}://${host}`;
   const title = "RightMark | Fishing quota evaluation and loan options";
-  const description = "Evaluate any current Alaska IFQ NMFS record, test downside, compare illustrative loan options, and download a transparent PDF report.";
+  const description = "Evaluate any current IFQ NMFS record, test downside, compare illustrative loan options, and download a transparent PDF report.";
   return {
     title, description, metadataBase: new URL(origin),
     icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
