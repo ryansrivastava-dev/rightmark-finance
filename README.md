@@ -1,100 +1,131 @@
-# vinext-starter
+# RightMark
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+**Public-record fishing quota evaluation, downside modeling, and illustrative financing options in one decision-ready workflow.**
 
-## Prerequisites
+[![Live demo](https://img.shields.io/badge/live-rightmark-0a6b58?style=for-the-badge)](https://rightmark-finance.pragnan740.chatgpt.site/)
+[![CI](https://img.shields.io/github/actions/workflow/status/ryansrivastava-dev/rightmark-finance/ci.yml?branch=main&style=for-the-badge&label=CI)](https://github.com/ryansrivastava-dev/rightmark-finance/actions/workflows/ci.yml)
+[![Node](https://img.shields.io/badge/node-%E2%89%A522.13-233056?style=for-the-badge)](https://nodejs.org/)
 
-- Node.js `>=22.13.0`
+![RightMark product preview](public/og.png)
 
-## Quick Start
+## Why RightMark
+
+Fishing quota records are public, but turning fragmented holdings, market inputs, and risk assumptions into a useful financial view is difficult. RightMark creates a transparent path from an NMFS ID to:
+
+- a complete matching halibut and sablefish quota-share record;
+- species- and area-aware valuation inputs;
+- an explainable modeled asset value and stress value;
+- borrowing-capacity scenarios and illustrative loan structures;
+- a downloadable PDF evaluation report.
+
+RightMark is a prototype for decision support. It does **not** authenticate ownership, issue credit, provide a real loan offer, or replace professional financial, legal, or regulatory advice.
+
+## Product capabilities
+
+| Capability | What it does |
+| --- | --- |
+| Public record lookup | Aggregates every matching 2026 NOAA holder row for an NMFS ID |
+| Evaluation | Converts quota-share records into an explainable modeled value |
+| Stress testing | Adjusts allowable catch, price, fuel cost, and regulatory risk |
+| Marketplace | Compares three clearly labeled illustrative financing structures |
+| PDF reports | Exports the record, assumptions, valuation logic, risk view, and selected option |
+| Persistence | Stores analyses, illustrative offers, and completed scenarios in Cloudflare D1 |
+
+## Data sources
+
+RightMark uses public information from:
+
+- [NOAA Fisheries](https://www.fisheries.noaa.gov/) — IFQ holders, landings, quota-share pools, asserted interests, and transfer eligibility;
+- [International Pacific Halibut Commission](https://www.iphc.int/) — fishery limits and published price context;
+- [U.S. Energy Information Administration](https://www.eia.gov/) — weekly diesel prices.
+
+When a live upstream request is unavailable, the interface identifies that cached public values are being used.
+
+## Architecture
+
+```text
+Browser
+  └─ React + vinext App Router
+       ├─ /api/analyze       Public-record lookup and valuation
+       ├─ /api/stress        Scenario modeling
+       ├─ /api/offers        Illustrative financing structures
+       ├─ /api/report        PDF generation
+       └─ Cloudflare D1      Analyses, offers, and scenario records
+
+External sources
+  ├─ NOAA Fisheries
+  ├─ IPHC
+  └─ U.S. EIA
+```
+
+The application is built with React 19, TypeScript, vinext, Cloudflare Workers, Drizzle ORM, D1, GSAP, and PDF-Lib.
+
+## Local development
+
+### Prerequisites
+
+- Node.js 22.13 or newer
+- pnpm 11
+
+### Setup
 
 ```bash
-npm install
-npm run dev
-npm run build
+git clone https://github.com/ryansrivastava-dev/rightmark-finance.git
+cd rightmark-finance
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
-This starter does not use `wrangler.jsonc`.
+Open the local URL printed by Vite.
 
-## Included Shape
+The EIA public demo key works by default. To use your own EIA key locally:
 
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
-
-## Workspace Auth Headers
-
-Signed-in visitors receive both `oai-authenticated-user-id` and `oai-authenticated-user-email`. Private Sites require every visitor to sign in; public Sites may also have anonymous visitors, for whom neither header is present.
-
-The user ID is stable for the same user on the same Site and different across Sites. Email and name are intended for display or contact purposes.
-
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
-
-Treat the full name as optional and fall back to email when it is absent:
-
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const userId = requestHeaders.get("oai-authenticated-user-id");
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
-}
+```bash
+cp .dev.vars.example .dev.vars
 ```
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+Then replace the placeholder value in `.dev.vars`.
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
+## Commands
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
+| Command | Purpose |
+| --- | --- |
+| `pnpm dev` | Start the local development server |
+| `pnpm build` | Create the production vinext build |
+| `pnpm test` | Build and run rendered-output tests |
+| `pnpm lint` | Run ESLint |
+| `pnpm db:generate` | Generate Drizzle migrations |
 
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
+## API overview
 
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
+| Route | Method | Purpose |
+| --- | --- | --- |
+| `/api/health` | GET | Product and capability status |
+| `/api/market-data` | GET | Current public market inputs and source state |
+| `/api/analyze` | POST | NMFS record aggregation and evaluation |
+| `/api/stress` | POST | Downside scenario calculation |
+| `/api/offers` | POST | Illustrative financing comparisons |
+| `/api/offers/accept` | POST | Record a simulated selected option |
+| `/api/report` | POST | Generate a PDF evaluation |
 
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
+## Project structure
 
-## Useful Commands
+```text
+app/          UI, metadata, and API routes
+db/           D1 access and Drizzle schema
+drizzle/      Database migrations
+lib/          Public-data adapters and financial models
+public/       Brand and product assets
+tests/        Rendered-output tests
+worker/       Cloudflare Worker entry point
+```
 
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
+## Contributing and security
 
-## Learn More
+Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+For security-sensitive reports, follow [SECURITY.md](SECURITY.md) and avoid disclosing vulnerabilities in a public issue.
+
+## Live product
+
+[Launch RightMark](https://rightmark-finance.pragnan740.chatgpt.site/)

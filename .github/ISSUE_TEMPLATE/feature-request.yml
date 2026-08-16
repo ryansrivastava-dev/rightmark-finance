@@ -1,0 +1,23 @@
+name: Feature request
+description: Propose an improvement to RightMark
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user problem would this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: data
+    attributes:
+      label: Data or modeling considerations
+      description: Identify any public sources, assumptions, or regulatory constraints.

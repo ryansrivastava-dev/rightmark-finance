@@ -19,7 +19,7 @@ type Valuation = ReturnType<typeof calculateValuation> & Partial<Pick<Analysis, 
 const money = (value: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
 const exactMoney = (value: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 }).format(value);
 
-function Brand() { return <span className="brand"><img src="/rightmark-mark.png" alt="" aria-hidden="true" />RightMark</span>; }
+function Brand() { return <span className="brand"><Image src="/rightmark-mark.png" alt="" aria-hidden="true" width={28} height={28} priority />RightMark</span>; }
 function Button({ children, variant = "primary", onClick, disabled = false, type = "button" }: { children: React.ReactNode; variant?: "primary" | "ghost" | "dark"; onClick?: () => void; disabled?: boolean; type?: "button" | "submit" }) { return <button type={type} className={`button ${variant}`} onClick={onClick} disabled={disabled}>{children}</button>; }
 
 export function RightMarkApp() {

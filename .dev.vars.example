@@ -1,0 +1,2 @@
+# Optional. RightMark falls back to the EIA public DEMO_KEY when unset.
+EIA_API_KEY=replace_with_your_eia_api_key
