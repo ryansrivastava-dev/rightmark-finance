@@ -110,7 +110,6 @@ button,a,input{font-family:inherit}
 .taste-hero-copy{display:flex;flex-direction:column;justify-content:center;position:relative;z-index:2;padding:70px 0 34px}
 .taste-kicker,.chapter-heading>p,.desire-copy>p,.taste-action>div>p{font-size:11px;text-transform:uppercase;letter-spacing:.18em;font-weight:700;color:#9dae9f;margin:0 0 30px}
 .taste-hero h1{font-size:clamp(54px,6.25vw,98px);line-height:.88;letter-spacing:-.072em;font-weight:500;margin:0;max-width:860px;text-wrap:balance}
-.inline-photo{display:inline-block;width:clamp(72px,8vw,136px);height:.55em;vertical-align:.04em;margin:0 .08em;border-radius:999px;background:linear-gradient(90deg,rgba(4,18,14,.08),rgba(4,18,14,.08)),url('https://picsum.photos/seed/alaska-quota-vessel/400/160') center/cover;filter:grayscale(1) contrast(1.2);border:1px solid rgba(255,255,255,.24)}
 .taste-lede{max-width:650px;margin:34px 0 0;padding-left:clamp(0px,5vw,82px);font-size:clamp(16px,1.35vw,21px);line-height:1.55;color:#aebcb5}
 .taste-hero .heroActions{margin:36px 0 0;padding-left:clamp(0px,5vw,82px);gap:12px}
 .hero-proof{margin:31px 0 0;padding-left:clamp(0px,5vw,82px);font-size:11px;color:#73877f;letter-spacing:.02em}
@@ -209,3 +208,5 @@ footer{background:var(--navy);color:#fff;padding:70px clamp(20px,5vw,78px);displ
 @media(max-width:560px){.navEdition{display:none}.navEvaluate{font-size:8px;padding:9px 11px}.coreHero h1{font-size:clamp(49px,14vw,66px)}.coreNarrative{padding-left:17px;padding-right:17px}.coreStatement{font-size:clamp(50px,15vw,72px)}.coreAccordion h3{font-size:38px}.coreProof{padding-left:17px;padding-right:17px}.coreProof article{min-height:390px;padding:30px 24px}.coreProof h2{font-size:52px}.dashboardActions,.detailActions{flex-direction:column}.dashboardActions .button,.detailActions .button{width:100%}.lookupScope{margin-left:0;margin-right:0}.insightBox{grid-template-columns:1fr}.insightBox .button{width:100%}}
 
 .coreHero h1{font-family:var(--font-geist),sans-serif}
+
+.brand{display:inline-flex;align-items:center;gap:9px}.brand>i{display:none}.brandLogo{position:relative;display:inline-block;width:28px;height:28px;overflow:hidden;flex:0 0 28px}.brandLogo img{object-fit:contain;transform:scale(1.16);transform-origin:center}
