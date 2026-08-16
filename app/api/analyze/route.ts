@@ -4,7 +4,7 @@ import { DEMO_ASSET, DEMO_MARKET, scaleAssetModel, type MarketData } from "../..
 
 export async function POST(request: Request) {
   const payload = (await request.json()) as { nmfsId?: string; quotaId?: string; assetType?: string; market?: MarketData };
-  const nmfsId = (payload.nmfsId ?? payload.quotaId ?? "").trim();
+  const nmfsId = (payload.nmfsId ?? payload.quotaId ?? "").trim().replace(/^(NMFS|IFQ)[-:# ]*/i, "");
   if (!/^\d{1,8}$/.test(nmfsId)) return Response.json({ error: "Enter a numeric NMFS ID from the public quota-share dataset." }, { status: 400 });
   if (payload.assetType && payload.assetType !== "fishing") return Response.json({ error: "The live public-record workflow supports Alaska halibut and sablefish quota share." }, { status: 400 });
   const holding = await lookupNoaaHolding(nmfsId);

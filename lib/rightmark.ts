@@ -43,8 +43,8 @@ export function scaleAssetModel(annualGrossValue: number, referencePrice: number
 export function makeOffers(analysisId: string, borrowingPower: number) {
   const anchor = Math.max(0, Math.round(borrowingPower / 1_000) * 1_000);
   return [
-    { lender: "Indicative Term A", amount: Math.round(anchor * 0.8), apr: 7.6, termMonths: 48, bestMatch: true },
-    { lender: "Indicative Term B", amount: Math.round(anchor * 0.95), apr: 8.1, termMonths: 60, bestMatch: false },
-    { lender: "Indicative Term C", amount: Math.round(anchor * 0.65), apr: 7.2, termMonths: 36, bestMatch: false },
+    { lender: "Harbor Capital", amount: Math.round(anchor * 0.8), apr: 7.6, termMonths: 48, bestMatch: true },
+    { lender: "Coastal Bank", amount: Math.round(anchor * 0.95), apr: 8.1, termMonths: 60, bestMatch: false },
+    { lender: "BlueWave Finance", amount: Math.round(anchor * 0.65), apr: 7.2, termMonths: 36, bestMatch: false },
   ].map((offer, index) => ({ id: `${analysisId}-offer-${index + 1}`, analysisId, ...offer, monthlyPayment: payment(offer.amount, offer.apr, offer.termMonths) }));
 }
