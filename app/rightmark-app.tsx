@@ -1,8 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+import Image from "next/image";
 import { calculateValuation, DEMO_ASSET, DEMO_MARKET, type MarketData, type RiskLevel } from "../lib/rightmark";
 import type { PublicHolding } from "../lib/public-data";
+
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 type Screen = "landing" | "add" | "verify" | "dashboard" | "stress" | "market" | "details" | "success";
 type Analysis = typeof DEMO_ASSET & ReturnType<typeof calculateValuation> & { id: string; market: MarketData; holding: PublicHolding; annualCashFlow: number; verificationLevel: string; breakdown: { quotaOwnershipValue: number; futureCashFlow: number; scarcityPremium: number; regulatoryAdjustment: number; marketAdjustment: number } };
@@ -97,7 +103,7 @@ export function RightMarkApp() {
     <header className="nav"><button className="brandButton" onClick={() => navigate("landing")} aria-label="RightMark home"><Brand /></button><span className="navEdition">RIGHTS INTELLIGENCE / 2026</span><div className="navSteps">{steps.map((step, i) => <span className={i <= stepIndex && screen !== "landing" ? "active" : ""} key={step}><i>{i + 1}</i>{step}</span>)}</div><span className="demoPill"><i /> LIVE PUBLIC DATA</span></header>
     {error && <div className="errorBar">{error}<button onClick={() => setError("")}>×</button></div>}
 
-    {screen === "landing" && <Landing onAnalyze={() => navigate("add")} onDemo={() => analyze(true)} />}
+    {screen === "landing" && <PremiumLanding market={market} onAnalyze={() => navigate("add")} onDemo={() => analyze(true)} />}
     {screen === "add" && <AddAsset quotaId={quotaId} setQuotaId={setQuotaId} onAnalyze={() => analyze()} busy={busy} error={error} />}
     {screen === "verify" && <Verification checks={verification} />}
     {screen === "dashboard" && analysis && <Dashboard analysis={analysis} market={market} onStress={() => navigate("stress")} onFinance={getOffers} busy={busy} />}
@@ -109,7 +115,134 @@ export function RightMarkApp() {
   </div>;
 }
 
-function Landing({ onAnalyze, onDemo }: { onAnalyze: () => void; onDemo: () => void }) {
+function PremiumLanding({ market, onAnalyze, onDemo }: { market: MarketData; onAnalyze: () => void; onDemo: () => void }) {
+  const root = useRef<HTMLElement>(null);
+
+  useGSAP(() => {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reducedMotion) return;
+
+    const intro = gsap.timeline({ defaults: { ease: "power3.out" } });
+    intro
+      .from(".taste-hero-copy > *", { y: 42, opacity: 0, duration: 0.9, stagger: 0.08 })
+      .from(".taste-hero-visual", { clipPath: "inset(0 0 100% 0)", scale: 1.08, duration: 1.25 }, "-=0.72");
+
+    gsap.utils.toArray<HTMLElement>(".js-media").forEach((media) => {
+      gsap.timeline({
+        scrollTrigger: { trigger: media, start: "top 90%", end: "bottom 5%", scrub: 1.1 },
+      })
+        .fromTo(media, { scale: 0.82, opacity: 0.5 }, { scale: 1, opacity: 1, ease: "none", duration: 0.7 })
+        .to(media, { scale: 0.96, opacity: 0.2, ease: "none", duration: 0.3 });
+    });
+
+    gsap.utils.toArray<HTMLElement>(".stack-card").forEach((card, index) => {
+      gsap.to(card, {
+        scale: 0.965 - index * 0.008,
+        y: -18 * index,
+        ease: "none",
+        scrollTrigger: {
+          trigger: card,
+          start: `top ${18 + index * 4}%`,
+          end: "bottom top",
+          scrub: 0.8,
+        },
+      });
+    });
+  }, { scope: root });
+
+  const signals = [
+    `NOAA ${new Date().getFullYear()} holder records`,
+    `$${market.fishPrice.toFixed(2)} weighted price basis`,
+    `$${market.fuelCost.toFixed(3)} EIA diesel per gallon`,
+    `${Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 2 }).format(market.halibutAllocationLb + market.sablefishAllocationLb)} allocation tracked`,
+  ];
+
+  return <main ref={root} className="taste-landing overflow-x-hidden w-full max-w-full">
+    <section className="taste-hero">
+      <div className="taste-hero-copy">
+        <p className="taste-kicker">Alternative asset infrastructure</p>
+        <h1 className="max-w-6xl w-full">The market for <span className="inline-photo" aria-hidden="true" /> rights-backed capital.</h1>
+        <p className="taste-lede">RightMark transforms current public records into transparent, stress-tested capital intelligence for the assets traditional finance struggles to understand.</p>
+        <div className="heroActions">
+          <Button onClick={onAnalyze}>Analyze an NMFS ID</Button>
+          <Button variant="dark" onClick={onDemo}>Explore a live record</Button>
+        </div>
+        <p className="hero-proof">Built on NOAA, IPHC, and U.S. Energy Information Administration data.</p>
+      </div>
+      <div className="taste-hero-visual js-media">
+        <Image src="https://picsum.photos/seed/alaska-commercial-harbor/1400/1600" alt="Commercial vessel at an Alaskan harbor" fill priority sizes="(max-width: 820px) 100vw, 46vw" unoptimized />
+        <div className="visual-wash" />
+        <div className="visual-caption"><span>RightMark intelligence</span><p>Public evidence, species-level modeling, and clear risk context in one decision surface.</p></div>
+      </div>
+    </section>
+
+    <section className="signal-marquee" aria-label="Current public market signals">
+      <div className="marquee-track">{[...signals, ...signals].map((signal, index) => <span key={`${signal}-${index}`}><i />{signal}</span>)}</div>
+    </section>
+
+    <section className="taste-interest">
+      <div className="chapter-heading">
+        <p>See the asset clearly</p>
+        <h2>A complete record, not another black box.</h2>
+        <span>Every output separates sourced evidence from assumptions and indicative scenarios.</span>
+      </div>
+      <div className="taste-bento">
+        <article className="bento-primary stack-card">
+          <div><span className="card-wordmark">RM</span><p>Complete public record</p></div>
+          <h3>One holder ID. Every matching quota-share line.</h3>
+          <p>Aggregate halibut and sablefish holdings across species, area, vessel category, block, and serial-group records.</p>
+          <div className="record-lines" aria-hidden="true"><i /><i /><i /><i /><i /></div>
+        </article>
+        <article className="bento-secondary stack-card">
+          <p>Explainable valuation</p>
+          <h3>Follow every input to the modeled value.</h3>
+          <div className="formula"><span>Public record</span><b>+</b><span>Market context</span><b>−</b><span>Risk</span></div>
+        </article>
+        <article className="bento-tertiary stack-card">
+          <p>Interactive downside</p>
+          <h3>Stress catch, price, fuel, and regulatory exposure.</h3>
+          <div className="mini-bars" aria-hidden="true">{[58, 72, 49, 86, 68, 94, 80].map((height) => <i style={{ height: `${height}%` }} key={height} />)}</div>
+        </article>
+      </div>
+    </section>
+
+    <section className="asset-accordion-section">
+      <div className="chapter-heading light-heading">
+        <p>Built beyond conventional collateral</p>
+        <h2>Scarce rights deserve modern financial infrastructure.</h2>
+      </div>
+      <div className="asset-accordion">
+        <article className="active"><div className="accordion-index">Fishing quotas</div><div className="accordion-content"><h3>Federal catch and quota-share rights</h3><p>Live coverage across every current Alaska IFQ NMFS ID, with species-specific conversion and market context.</p><button onClick={onAnalyze}>Open the lookup</button></div></article>
+        <article><div className="accordion-index">Water rights</div><div className="accordion-content"><h3>Transferable diversion entitlements</h3><p>A future RightMark market for scarce, regulated water access.</p><span>Research track</span></div></article>
+        <article><div className="accordion-index">Mobility rights</div><div className="accordion-content"><h3>Regulated medallions and permits</h3><p>Structured records for rights that underpin local operating businesses.</p><span>Research track</span></div></article>
+        <article><div className="accordion-index">Spectrum rights</div><div className="accordion-content"><h3>Licensed frequency allocations</h3><p>Decision infrastructure for high-scarcity communications assets.</p><span>Research track</span></div></article>
+      </div>
+    </section>
+
+    <section className="taste-desire">
+      <div className="desire-media js-media"><Image src="https://picsum.photos/seed/north-pacific-workboat/1800/1200" alt="Working vessel on cold northern water" fill sizes="(max-width: 820px) 100vw, 55vw" unoptimized /></div>
+      <div className="desire-copy">
+        <p>Designed for decisions</p>
+        <h2>From a public identifier to a defensible capital view.</h2>
+        <div className="process-list">
+          <article><span>Match</span><p>Find the full holder record across the current NOAA source file.</p></article>
+          <article><span>Model</span><p>Apply species, area, price, energy, and regulatory assumptions transparently.</p></article>
+          <article><span>Stress</span><p>See how downside conditions change value and indicative capacity.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section className="taste-action">
+      <div>
+        <p>Start with a public record</p>
+        <h2>Know what the right could support.</h2>
+      </div>
+      <div className="action-buttons"><Button onClick={onAnalyze}>Analyze any NMFS ID</Button><button className="text-action" onClick={onDemo}>View the live example</button></div>
+    </section>
+  </main>;
+}
+
+export function Landing({ onAnalyze, onDemo }: { onAnalyze: () => void; onDemo: () => void }) {
   return <main><section className="hero"><div className="heroAtmosphere" aria-hidden="true"><i /><i /><i /></div><div className="heroCopy"><div className="heroKicker"><span className="eyebrow">ALTERNATIVE ASSET INTELLIGENCE</span><small>01 — 06</small></div><h1>The operating system for <em>alternative collateral.</em></h1><p>Search every current Alaska IFQ holder ID and turn complete halibut and sablefish records into an auditable capital view—using species- and area-specific NOAA conversion data.</p><div className="heroActions"><Button onClick={onAnalyze}>Analyze any NMFS ID <b>↗</b></Button><Button variant="dark" onClick={onDemo}>Explore the live model <span>⌘</span></Button></div><div className="trustRow"><span><b>01</b> 2,488 NMFS IDs</span><span><b>02</b> 7,112 QS records</span><span><b>03</b> Halibut + sablefish</span></div></div><div className="heroModel"><div className="modelCaption"><span>RIGHTMARK / COLLATERAL VIEW</span><span>REFRESHED LIVE</span></div><div className="terminalCard"><div className="terminalTop"><span><i /> PUBLIC RECORD MATCH</span><small>NMFS 43983 / AK</small></div><div className="terminalValue"><small>MODELED COLLATERAL VALUE</small><strong>$136,255</strong><span>↗ species-specific analysis</span></div><div className="terminalGrid"><div><small>DATASET COVERAGE</small><b>100 <i>%</i></b></div><div><small>PUBLIC RECORDS</small><b>12</b></div></div><div className="sparkBars" aria-label="Illustrative twelve-period value trend">{[34, 44, 39, 56, 51, 68, 61, 75, 72, 86, 82, 94].map((h, i) => <i key={i} style={{ height: `${h}%`, animationDelay: `${i * 55}ms` }} />)}</div><p><b>Alaska IFQ quota share</b><span>All current holder IDs</span></p></div><div className="modelFoot"><span>DATA COVERAGE <b>08 SOURCES</b></span><span>MODEL STATUS <b>ACTIVE</b></span></div></div></section>
     <section className="marketTicker" aria-label="Current public market signals"><span>LIVE SIGNALS</span><p><b>NOAA 2026</b> IFQ HOLDER RECORDS</p><i /><p><b>$8.18</b> IPHC PRICE BENCHMARK</p><i /><p><b>$5.257</b> EIA DIESEL / GAL</p><i /><p><b>23.18M LB</b> FISHERY LIMIT</p></section>
     <section className="assetBand"><div className="assetBandIntro"><span>02</span><p>ASSET COVERAGE</p><h2>Rights with scarcity.<br/><em>Value with context.</em></h2></div><div className="assetList"><article><small>01 / ACTIVE</small><span>◒</span><b>Fishing quotas</b><p>Federal catch and quota-share rights</p></article><article><small>02 / ROADMAP</small><span>≋</span><b>Water rights</b><p>Transferable diversion entitlements</p></article><article><small>03 / ROADMAP</small><span>◆</span><b>Mobility rights</b><p>Regulated medallions and permits</p></article><article><small>04 / ROADMAP</small><span>⌁</span><b>Spectrum rights</b><p>Licensed frequency allocations</p></article></div></section>
