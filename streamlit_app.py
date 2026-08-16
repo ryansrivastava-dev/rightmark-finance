@@ -59,32 +59,134 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@400;500;600;700&display=swap');
-    :root { --navy:#061831; --blue:#1d6ff2; --green:#0a6b58; --mist:#eef4fb; }
-    .stApp { background:#f7f9fc; color:var(--navy); font-family:'Manrope',sans-serif; }
-    [data-testid="stHeader"] { background:transparent; }
-    .block-container { max-width:1240px; padding-top:2rem; padding-bottom:5rem; }
-    h1,h2,h3 { letter-spacing:-.035em; }
-    .rm-hero { background:linear-gradient(135deg,#061831 0%,#0d3567 68%,#126f69 140%);
-      border-radius:28px; color:white; padding:clamp(30px,6vw,72px); margin:12px 0 30px;
-      box-shadow:0 30px 80px rgba(6,24,49,.18); position:relative; overflow:hidden; }
-    .rm-kicker { color:#72e2ca; font-size:.72rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; }
-    .rm-hero h1 { font-family:'DM Serif Display',serif; font-size:clamp(3rem,7vw,6.7rem);
-      line-height:.9; max-width:900px; margin:22px 0; font-weight:400; }
-    .rm-hero p { color:#bfd0e5; max-width:760px; font-size:1.05rem; line-height:1.7; }
-    .rm-brand { display:flex; align-items:center; gap:12px; font-size:1.05rem; font-weight:800; }
-    .rm-dot { width:18px; height:18px; border:4px solid #72e2ca; border-radius:50%; display:inline-block; }
+    @import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&display=swap');
+    :root { --ink:#081527; --paper:#f5f2ea; --blue:#1769ff; --cyan:#84e7dd; --line:#c9d2dc; --mist:#e8eef3; }
+    html { scroll-behavior:smooth; }
+    .stApp { background:#f7f8f6; color:var(--ink); font-family:'Satoshi',sans-serif; }
+    [data-testid="stHeader"], [data-testid="stToolbar"], #MainMenu { display:none; }
+    .block-container { max-width:none; padding:0 0 5rem; overflow:hidden; }
+    h1,h2,h3 { letter-spacing:-.045em; }
+    .rm-landing { width:100%; overflow:hidden; background:var(--paper); }
+    .rm-nav { height:78px; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:24px;
+      padding:0 clamp(20px,4vw,72px); border-bottom:1px solid rgba(8,21,39,.18); background:rgba(245,242,234,.9);
+      backdrop-filter:blur(18px); position:relative; z-index:5; }
+    .rm-brand { display:flex; align-items:center; gap:10px; font-size:1.05rem; font-weight:700; color:var(--ink); }
+    .rm-brand img { width:27px; height:27px; object-fit:contain; filter:invert(1); }
+    .rm-edition { font-size:.65rem; font-weight:700; letter-spacing:.16em; }
+    .rm-nav-cta { justify-self:end; color:#fff!important; background:var(--ink); padding:12px 19px; border-radius:999px;
+      font-size:.78rem; font-weight:700; text-decoration:none!important; transition:transform .35s ease,background .35s ease; }
+    .rm-nav-cta:hover { transform:translateY(-2px); background:var(--blue); }
+    .rm-hero { min-height:760px; display:grid; grid-template-columns:minmax(0,1.08fr) minmax(360px,.92fr); background:var(--paper); }
+    .rm-hero-copy { padding:clamp(70px,10vw,150px) clamp(28px,6vw,92px); display:flex; flex-direction:column; justify-content:center; }
+    .rm-kicker { color:#31636c; font-size:.69rem; font-weight:700; letter-spacing:.17em; text-transform:uppercase; }
+    .rm-hero h1 { font-size:clamp(3.2rem,7vw,7.3rem); line-height:.86; max-width:1240px; margin:28px 0 32px; font-weight:500; }
+    .rm-hero h1 em { color:var(--blue); font-style:normal; }
+    .rm-hero p { max-width:670px; color:#405164; font-size:clamp(1rem,1.5vw,1.2rem); line-height:1.65; }
+    .rm-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:34px; }
+    .rm-button { display:inline-flex; align-items:center; justify-content:center; min-height:50px; border-radius:999px; padding:0 24px;
+      background:var(--blue); color:white!important; text-decoration:none!important; font-weight:700; font-size:.88rem;
+      transition:transform .35s ease,box-shadow .35s ease; }
+    .rm-button.dark { background:var(--ink); }
+    .rm-button:hover { transform:translateY(-3px); box-shadow:0 14px 30px rgba(8,21,39,.18); }
+    .rm-proofline { margin-top:32px; padding-top:20px; border-top:1px solid rgba(8,21,39,.16); font-size:.75rem!important;
+      font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+    .rm-hero-visual { position:relative; min-height:720px; overflow:hidden; background:#0c2637; }
+    .rm-hero-visual img { width:100%; height:100%; object-fit:cover; filter:saturate(.72) contrast(1.08); transition:transform 1.4s cubic-bezier(.2,.8,.2,1); }
+    .rm-hero-visual:hover img { transform:scale(1.045); }
+    .rm-visual-wash { position:absolute; inset:0; background:linear-gradient(180deg,transparent 35%,rgba(3,14,26,.88)); }
+    .rm-caption { position:absolute; left:clamp(24px,4vw,54px); right:clamp(24px,4vw,54px); bottom:42px; color:white; }
+    .rm-caption b { display:block; text-transform:uppercase; letter-spacing:.15em; font-size:.65rem; color:var(--cyan); margin-bottom:10px; }
+    .rm-caption p { color:#e1eaf0; max-width:430px; margin:0; }
+    .rm-marquee { background:var(--ink); color:white; overflow:hidden; padding:18px 0; white-space:nowrap; }
+    .rm-track { display:inline-flex; gap:52px; min-width:max-content; animation:rm-marquee 24s linear infinite; }
+    .rm-track span { display:flex; align-items:center; gap:13px; font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; }
+    .rm-track i { width:7px; height:7px; border-radius:50%; background:var(--cyan); }
+    @keyframes rm-marquee { to { transform:translateX(-50%); } }
+    .rm-chapter { padding:clamp(110px,15vw,220px) clamp(22px,6vw,90px); max-width:1500px; margin:auto; }
+    .rm-chapter-head { display:grid; grid-template-columns:.55fr 1.45fr; gap:50px; align-items:end; margin-bottom:66px; }
+    .rm-chapter-head>p { font-size:.7rem; letter-spacing:.16em; text-transform:uppercase; font-weight:700; color:#436774; }
+    .rm-chapter-head h2 { font-size:clamp(2.8rem,6vw,6.3rem); line-height:.92; margin:0 0 20px; font-weight:500; }
+    .rm-chapter-head span { color:#526273; max-width:720px; display:block; font-size:1.06rem; line-height:1.65; }
+    .rm-bento { display:grid; grid-template-columns:repeat(12,1fr); grid-template-rows:repeat(2,minmax(250px,1fr)); grid-auto-flow:dense; gap:0; border:1px solid var(--ink); }
+    .rm-bento article { padding:clamp(26px,4vw,54px); border:1px solid var(--ink); min-height:270px; overflow:hidden; transition:background .4s,color .4s; }
+    .rm-bento article:hover { background:var(--ink); color:white; }
+    .rm-bento .primary { grid-column:span 7; grid-row:span 2; background:#c9e5df; display:flex; flex-direction:column; justify-content:space-between; }
+    .rm-bento .secondary,.rm-bento .tertiary { grid-column:span 5; }
+    .rm-bento .secondary { background:#f3dcae; }
+    .rm-bento .tertiary { background:#dce6f7; }
+    .rm-bento small { font-size:.68rem; text-transform:uppercase; letter-spacing:.14em; font-weight:700; }
+    .rm-bento h3 { font-size:clamp(2rem,4vw,4.2rem); line-height:.98; margin:32px 0 18px; font-weight:500; max-width:760px; }
+    .rm-bento p { max-width:650px; line-height:1.6; }
+    .rm-formula { display:flex; align-items:center; gap:13px; margin-top:44px; font-weight:700; }
+    .rm-formula span { padding:10px 13px; border:1px solid currentColor; border-radius:999px; }
+    .rm-bars { height:84px; display:flex; align-items:end; gap:8px; margin-top:28px; }
+    .rm-bars i { flex:1; background:var(--blue); min-width:8px; }
+    .rm-desire { background:var(--ink); color:white; padding:clamp(110px,14vw,210px) clamp(22px,6vw,90px); display:grid; grid-template-columns:minmax(300px,.8fr) minmax(0,1.2fr); gap:clamp(50px,8vw,130px); }
+    .rm-sticky { position:sticky; top:80px; align-self:start; }
+    .rm-sticky h2 { font-size:clamp(3rem,7vw,7rem); line-height:.9; margin:0; font-weight:500; }
+    .rm-sticky h2 span { color:var(--cyan); }
+    .rm-accordion { border-top:1px solid rgba(255,255,255,.25); }
+    .rm-accordion article { display:grid; grid-template-columns:110px 1fr; gap:30px; padding:42px 0; border-bottom:1px solid rgba(255,255,255,.25); transition:padding .35s ease,background .35s ease; }
+    .rm-accordion article:hover { padding-left:24px; background:linear-gradient(90deg,rgba(132,231,221,.12),transparent); }
+    .rm-accordion>article>span { color:var(--cyan); font-size:.7rem; text-transform:uppercase; letter-spacing:.15em; font-weight:700; }
+    .rm-accordion h3 { font-size:clamp(1.6rem,3vw,3rem); margin:0 0 12px; font-weight:500; }
+    .rm-accordion p { color:#aebdca; line-height:1.65; margin:0; }
+    .rm-proof { padding:clamp(110px,15vw,220px) clamp(22px,7vw,110px); background:#dbe5f4; }
+    .rm-proof article { position:sticky; top:110px; min-height:360px; padding:clamp(34px,6vw,80px); border:1px solid var(--ink); background:var(--paper); display:grid;
+      grid-template-columns:.45fr 1.55fr; gap:50px; align-items:end; box-shadow:0 22px 60px rgba(8,21,39,.13); }
+    .rm-proof article:nth-child(2) { top:138px; background:#c9e5df; }
+    .rm-proof article:nth-child(3) { top:166px; background:#f3dcae; }
+    .rm-proof small { text-transform:uppercase; letter-spacing:.16em; font-weight:700; }
+    .rm-proof h2 { font-size:clamp(3rem,7vw,7rem); margin:0 0 20px; line-height:.9; font-weight:500; }
+    .rm-proof p { max-width:620px; font-size:1.05rem; line-height:1.6; }
+    .rm-action { background:var(--blue); color:white; min-height:560px; padding:clamp(80px,12vw,170px) clamp(22px,7vw,110px); display:flex; flex-direction:column; justify-content:space-between; }
+    .rm-action small { text-transform:uppercase; letter-spacing:.16em; font-weight:700; }
+    .rm-action h2 { max-width:1180px; font-size:clamp(3.4rem,8vw,8rem); line-height:.87; font-weight:500; margin:34px 0 54px; }
+    .rm-action .rm-button { background:white; color:var(--ink)!important; }
+    .rm-footer { display:grid; grid-template-columns:1fr 2fr auto; gap:36px; align-items:center; background:var(--ink); color:white; padding:45px clamp(22px,6vw,90px); }
+    .rm-footer p { color:#9fadb9; font-size:.78rem; max-width:720px; }
+    .rm-product-nav { max-width:1240px; margin:0 auto; padding:28px 20px 10px; display:flex; justify-content:space-between; align-items:center; }
+    .rm-product-nav span:last-child { color:#6b7a8a; font-size:.69rem; letter-spacing:.14em; font-weight:700; }
+    .rm-lookup-head { max-width:1240px; margin:0 auto; padding:clamp(70px,9vw,120px) 20px 30px; }
+    .rm-lookup-head h2 { font-size:clamp(2.8rem,6vw,6rem); line-height:.92; margin:14px 0 18px; font-weight:500; }
+    .rm-lookup-head p { max-width:680px; color:#526273; font-size:1.05rem; }
+    [data-testid="stForm"], [data-testid="stAlert"], [data-testid="stTabs"], [data-testid="stExpander"] { max-width:1240px; margin-left:auto; margin-right:auto; }
+    [data-testid="stForm"] { background:white; border:1px solid #cbd6e2!important; border-radius:0!important; padding:28px!important; box-shadow:0 18px 55px rgba(8,21,39,.07); }
     .rm-card { background:white; border:1px solid #dbe4ef; border-radius:20px; padding:24px;
       box-shadow:0 14px 40px rgba(6,24,49,.06); height:100%; }
     .rm-label { color:#687a91; font-size:.69rem; font-weight:700; letter-spacing:.13em; text-transform:uppercase; }
     .rm-value { font-size:clamp(1.8rem,4vw,3.2rem); font-weight:700; letter-spacing:-.06em; margin-top:8px; }
     .rm-note { background:#eef4fb; border-left:4px solid #1d6ff2; border-radius:8px; padding:15px 18px; color:#38506d; }
-    .stButton>button, .stDownloadButton>button { border-radius:999px; min-height:46px; font-weight:700; }
-    .stButton>button[kind="primary"], .stDownloadButton>button { background:#1d6ff2; color:white; border:0; }
+    .stButton>button, .stDownloadButton>button { border-radius:999px!important; min-height:46px; font-weight:700;
+      background:white!important; color:var(--ink)!important; border:1px solid #aebdca!important; }
+    .stButton>button p, .stDownloadButton>button p { color:inherit!important; }
+    .stButton>button[kind="primary"], .stDownloadButton>button { background:var(--blue)!important; color:white!important; border-color:var(--blue)!important; }
     [data-testid="stMetric"] { background:white; border:1px solid #dbe4ef; padding:18px; border-radius:16px; }
+    [data-testid="stMetric"] * { color:var(--ink)!important; opacity:1!important; }
+    [data-testid="stMetricValue"] { font-size:clamp(1.45rem,2.8vw,2.45rem)!important; letter-spacing:-.045em!important; }
+    [data-testid="stMetricDelta"] * { color:#08755f!important; }
+    [data-testid="stAlert"] { color:#173d32!important; }
+    [data-testid="stAlert"] * { color:inherit!important; opacity:1!important; }
     [data-baseweb="tab-list"] { gap:8px; }
-    [data-baseweb="tab"] { border-radius:999px; padding:9px 18px; }
+    [data-baseweb="tab"] { border-radius:999px; padding:9px 18px; color:#516174!important; }
+    [data-baseweb="tab"][aria-selected="true"] { color:var(--blue)!important; }
     footer { visibility:hidden; }
+    @media (prefers-reduced-motion:reduce) { .rm-track { animation:none; } * { scroll-behavior:auto!important; } }
+    @media (max-width:900px) {
+      .rm-nav { grid-template-columns:1fr auto; } .rm-edition { display:none; }
+      .rm-hero { grid-template-columns:1fr; } .rm-hero-visual { min-height:560px; }
+      .rm-chapter-head,.rm-desire { grid-template-columns:1fr; }
+      .rm-bento { grid-template-columns:1fr; grid-template-rows:auto; }
+      .rm-bento .primary,.rm-bento .secondary,.rm-bento .tertiary { grid-column:1; grid-row:auto; }
+      .rm-sticky { position:relative; top:auto; } .rm-proof article { grid-template-columns:1fr; }
+      .rm-footer { grid-template-columns:1fr; }
+    }
+    @media (max-width:600px) {
+      .rm-nav { height:68px; } .rm-nav-cta { font-size:.7rem; padding:10px 13px; }
+      .rm-hero-copy { padding-top:80px; padding-bottom:80px; } .rm-hero-visual { min-height:460px; }
+      .rm-accordion article { grid-template-columns:1fr; gap:14px; } .rm-proof article { min-height:430px; }
+      [data-testid="stForm"] { margin:0 16px; padding:20px!important; }
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -425,22 +527,106 @@ def create_pdf(
     return output.getvalue()
 
 
-def render_header() -> None:
-    st.markdown('<div class="rm-brand"><span class="rm-dot"></span>RightMark</div>', unsafe_allow_html=True)
+def render_landing() -> None:
+    """Render the full editorial RightMark experience before the evaluation workspace."""
     st.markdown(
         """
-        <section class="rm-hero">
-          <div class="rm-kicker">Fishing quota evaluation</div>
-          <h1>Know what your “quota” is worth</h1>
-          <p>Verify a complete public NMFS record, calculate an explainable value,
-          test downside, compare illustrative options, and export a decision-ready report.</p>
-        </section>
+        <div class="rm-landing">
+          <nav class="rm-nav">
+            <div class="rm-brand"><img src="https://raw.githubusercontent.com/ryansrivastava-dev/rightmark-finance/main/public/rightmark-mark.png" alt="">RightMark</div>
+            <span class="rm-edition">QUOTA EVALUATION / 2026</span>
+            <a class="rm-nav-cta" href="#rm-lookup">Evaluate an NMFS ID</a>
+          </nav>
+          <section class="rm-hero">
+            <div class="rm-hero-copy">
+              <span class="rm-kicker">Fishing quota evaluation</span>
+              <h1>Know what your <em>“quota”</em> is worth</h1>
+              <p>Enter any current IFQ NMFS ID. RightMark verifies the complete public record, calculates an explainable value, tests downside, and compares illustrative loan options.</p>
+              <div class="rm-actions">
+                <a class="rm-button" href="#rm-lookup">Evaluate an NMFS ID</a>
+                <a class="rm-button dark" href="#rm-lookup">Open the live example</a>
+              </div>
+              <p class="rm-proofline">One asset class. One clear financial decision path.</p>
+            </div>
+            <div class="rm-hero-visual">
+              <img src="https://raw.githubusercontent.com/ryansrivastava-dev/rightmark-finance/main/public/rightmark-hero-v2.png" alt="Commercial fishing vessel navigating coastal waters">
+              <div class="rm-visual-wash"></div>
+              <div class="rm-caption"><b>RightMark evaluation</b><p>Public evidence, transparent assumptions, and modeled loan capacity in one report.</p></div>
+            </div>
+          </section>
+          <section class="rm-marquee" aria-label="Current public market signals">
+            <div class="rm-track">
+              <span><i></i>NOAA 2026 holder records</span><span><i></i>$8.18 weighted price basis</span><span><i></i>EIA diesel price linked live</span><span><i></i>Halibut + sablefish IFQ coverage</span>
+              <span><i></i>NOAA 2026 holder records</span><span><i></i>$8.18 weighted price basis</span><span><i></i>EIA diesel price linked live</span><span><i></i>Halibut + sablefish IFQ coverage</span>
+            </div>
+          </section>
+          <section class="rm-chapter">
+            <div class="rm-chapter-head">
+              <p>Everything that matters</p>
+              <div><h2>One evaluation.<br>No unnecessary complexity.</h2><span>Every result distinguishes public evidence, model assumptions, and indicative financing scenarios.</span></div>
+            </div>
+            <div class="rm-bento">
+              <article class="primary"><small>Complete public record</small><div><h3>Every matching quota-share line, aggregated.</h3><p>Halibut and sablefish holdings are normalized across species, areas, vessel categories, blocks, and serial groups.</p></div></article>
+              <article class="secondary"><small>Explainable evaluation</small><h3>See exactly what drives the number.</h3><div class="rm-formula"><span>Record</span><b>+</b><span>Market</span><b>−</b><span>Risk</span></div></article>
+              <article class="tertiary"><small>Decision-ready output</small><h3>Stress, compare, and export.</h3><div class="rm-bars"><i style="height:44%"></i><i style="height:65%"></i><i style="height:57%"></i><i style="height:82%"></i><i style="height:73%"></i><i style="height:96%"></i><i style="height:84%"></i></div></article>
+            </div>
+          </section>
+          <section class="rm-desire">
+            <div class="rm-sticky"><h2>A public identifier becomes a <span>defensible capital view.</span></h2></div>
+            <div class="rm-accordion">
+              <article><span>Verify</span><div><h3>Match the complete NOAA record</h3><p>Search every current holder ID and aggregate all connected quota-share rows.</p></div></article>
+              <article><span>Value</span><div><h3>Calculate an explainable estimate</h3><p>Apply species, area, market, scarcity, and regulatory assumptions transparently.</p></div></article>
+              <article><span>Stress</span><div><h3>Test the downside</h3><p>Adjust allowable catch, species price, fuel cost, and regulatory risk.</p></div></article>
+              <article><span>Decide</span><div><h3>Compare options and export</h3><p>Review illustrative structures and download a polished PDF evaluation report.</p></div></article>
+            </div>
+          </section>
+          <section class="rm-proof">
+            <article><small>Verified record</small><div><h2>12 NOAA holder rows</h2><p>The live example aggregates the complete public record for NMFS 43983.</p></div></article>
+            <article><small>Modeled evaluation</small><div><h2>$136,255</h2><p>Every positive driver and risk adjustment is shown in the calculation.</p></div></article>
+            <article><small>Decision output</small><div><h2>PDF + loan options</h2><p>Carry the evaluation into a report or compare three illustrative structures.</p></div></article>
+          </section>
+          <section class="rm-action">
+            <small>Start with one public identifier</small>
+            <div><h2>Evaluate the right.<br>Understand the options.</h2><a class="rm-button" href="#rm-lookup">Evaluate NMFS 43983</a></div>
+          </section>
+          <footer class="rm-footer">
+            <div class="rm-brand"><img src="https://raw.githubusercontent.com/ryansrivastava-dev/rightmark-finance/main/public/rightmark-mark.png" alt="">RightMark</div>
+            <p>Public records and market inputs are sourced. Valuations, stress tests, and loan options are modeled and illustrative. RightMark is not a lender, broker, or appraiser.</p>
+            <span>© 2026 RightMark</span>
+          </footer>
+        </div>
         """,
         unsafe_allow_html=True,
     )
 
 
-render_header()
+def render_product_header() -> None:
+    st.markdown(
+        """
+        <div class="rm-product-nav">
+          <div class="rm-brand"><img src="https://raw.githubusercontent.com/ryansrivastava-dev/rightmark-finance/main/public/rightmark-mark.png" alt="">RightMark</div>
+          <span>VERIFY · VALUE · STRESS · OPTIONS</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+holding = st.session_state.get("holding")
+if holding:
+    render_product_header()
+else:
+    render_landing()
+    st.markdown(
+        """
+        <div id="rm-lookup" class="rm-lookup-head">
+          <span class="rm-kicker">NOAA public lookup</span>
+          <h2>Evaluate an IFQ record.</h2>
+          <p>Search all current NMFS holder IDs across the 2026 halibut and sablefish quota-share files, then carry the result into a sourced evaluation, stress test, marketplace, and PDF.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 with st.form("lookup"):
     left, right = st.columns([3, 1])
@@ -470,14 +656,12 @@ if submitted:
                 st.session_state["entered_id"] = entered_id
                 st.session_state.pop("selected_offer", None)
                 st.session_state.pop("completed_scenario", None)
+                st.rerun()
         except requests.RequestException:
             st.error("The public record source is temporarily unavailable. Please try again shortly.")
 
 holding = st.session_state.get("holding")
 if not holding:
-    image_path = APP_ROOT / "public" / "rightmark-hero-v2.png"
-    if image_path.exists():
-        st.image(str(image_path), caption="Public evidence. Transparent assumptions. One capital view.", width="stretch")
     st.markdown(
         '<div class="rm-note"><strong>Try the live example:</strong> NMFS 43983. '
         "Public lookup does not authenticate the visitor or establish ownership.</div>",
