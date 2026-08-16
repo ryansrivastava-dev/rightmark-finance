@@ -17,9 +17,9 @@ test("server-renders the complete RightMark product surface", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
   const html = await response.text();
   assert.match(html, /<title>RightMark \| Turn rights into usable capital<\/title>/i);
-  assert.match(html, /Turn overlooked rights into/);
+  assert.match(html, /The operating system for/);
   assert.match(html, /Analyze a public record/);
-  assert.match(html, /LIVE DATA · MODELED OUTPUTS/);
+  assert.match(html, /LIVE PUBLIC DATA/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/);
 });
 
