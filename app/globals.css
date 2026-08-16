@@ -213,3 +213,5 @@ footer{background:var(--navy);color:#fff;padding:70px clamp(20px,5vw,78px);displ
 .coreHero h1{font-family:var(--font-geist),sans-serif}
 
 .brand{display:inline-flex;align-items:center;gap:9px}.brand>i{display:none}.brandLogo{position:relative;display:inline-block;width:28px;height:28px;overflow:hidden;flex:0 0 28px}.brandLogo img{object-fit:contain;transform:scale(1.16);transform-origin:center}
+
+.coreRevealWord:not(:last-child){margin-right:.22em}
