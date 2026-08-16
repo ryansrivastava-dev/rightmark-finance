@@ -9,6 +9,7 @@ from __future__ import annotations
 import csv
 import io
 import re
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -308,6 +309,7 @@ def create_pdf(
     holding: dict[str, Any],
     model: dict[str, float],
     assumptions: dict[str, Any],
+    offer: dict[str, Any] | None = None,
 ) -> bytes:
     output = io.BytesIO()
     pdf = canvas.Canvas(output, pagesize=letter)
@@ -376,6 +378,47 @@ def create_pdf(
     pdf.setFont("Helvetica", 8)
     pdf.drawString(56, 78, "Indicative model only - not an appraisal, loan approval, or proof of ownership.")
     pdf.drawString(56, 62, "Sources: NOAA public IFQ records, IPHC fishery data, and U.S. EIA energy data.")
+
+    if offer:
+        pdf.showPage()
+        pdf.setFillColor(pale)
+        pdf.rect(0, 0, width, height, stroke=0, fill=1)
+        pdf.setFillColor(navy)
+        pdf.rect(0, height - 155, width, 155, stroke=0, fill=1)
+        pdf.setFillColorRGB(1, 1, 1)
+        pdf.setFont("Helvetica-Bold", 18)
+        pdf.drawString(42, height - 58, "RightMark")
+        pdf.setFillColor(HexColor("#72E2CA"))
+        pdf.setFont("Helvetica-Bold", 9)
+        pdf.drawString(42, height - 100, "SELECTED ILLUSTRATIVE OPTION")
+        pdf.setFillColor(navy)
+        pdf.setFont("Helvetica-Bold", 28)
+        pdf.drawString(42, 575, str(offer["Lender"])[:60])
+        offer_rows = [
+            ("Hypothetical principal", money(offer["Amount"])),
+            ("Assumed APR", f"{offer['APR']:.1f}%"),
+            ("Term", f"{offer['Term']} months"),
+            ("Modeled monthly payment", money(offer["Monthly payment"])),
+            ("Calculated stress-value LTV", f"{offer['Amount'] / max(model['stress'], 1) * 100:.1f}%"),
+            ("Illustrative platform fee", money(offer["Amount"] * 0.01)),
+        ]
+        for index, (label, value) in enumerate(offer_rows):
+            y = 515 - index * 48
+            pdf.setFont("Helvetica", 10)
+            pdf.setFillColor(muted)
+            pdf.drawString(42, y, label)
+            pdf.setFont("Helvetica-Bold", 12)
+            pdf.setFillColor(blue if index == 0 else navy)
+            pdf.drawString(290, y, value)
+            pdf.setStrokeColor(HexColor("#D5E1EF"))
+            pdf.line(42, y - 15, width - 42, y - 15)
+        pdf.setFillColor(navy)
+        pdf.roundRect(42, 92, width - 84, 82, 8, stroke=0, fill=1)
+        pdf.setFillColor(HexColor("#D5E1EF"))
+        pdf.setFont("Helvetica", 8)
+        pdf.drawString(56, 141, "No lender participated. This is not an application, approval, commitment, or offer.")
+        pdf.drawString(56, 123, "A real transaction requires authenticated ownership, lien and transfer checks,")
+        pdf.drawString(56, 105, "complete underwriting, and a licensed lender.")
     pdf.setTitle(f"RightMark NMFS {holding['nmfs_id']} Evaluation")
     pdf.setAuthor("RightMark")
     pdf.save()
@@ -425,6 +468,8 @@ if submitted:
             else:
                 st.session_state["holding"] = result
                 st.session_state["entered_id"] = entered_id
+                st.session_state.pop("selected_offer", None)
+                st.session_state.pop("completed_scenario", None)
         except requests.RequestException:
             st.error("The public record source is temporarily unavailable. Please try again shortly.")
 
@@ -441,10 +486,28 @@ if not holding:
     st.stop()
 
 current_fuel, fuel_date = fuel_price()
-st.success(
+status_col, reset_col = st.columns([5, 1])
+status_col.success(
     f"Complete public record matched for NMFS {holding['nmfs_id']} · "
     f"{holding['record_count']} holder rows aggregated"
 )
+if reset_col.button("New evaluation", width="stretch"):
+    for key in ("holding", "selected_offer", "completed_scenario"):
+        st.session_state.pop(key, None)
+    st.rerun()
+
+with st.expander("Verification trail", expanded=False):
+    checks = [
+        "Current NOAA holder dataset reached",
+        f"NMFS ID matched across {holding['record_count']} quota-share rows",
+        f"{len(holding['species_holdings'])} species profile(s) resolved by area",
+        f"{holding['security_count']} serial-group records checked for asserted interests",
+        "QS-to-IFQ conversion ratios applied",
+        f"Transfer eligibility linked: {holding['transfer_status']}",
+        f"EIA fuel input linked: {fuel_date}",
+    ]
+    for check in checks:
+        st.markdown(f"✓ {check}")
 
 assumptions_tab, holdings_tab, stress_tab, market_tab, sources_tab = st.tabs(
     ["Evaluation", "Holdings", "Stress test", "Marketplace", "Sources"]
@@ -470,6 +533,8 @@ with stress_tab:
 
 model = valuation(holding, catch_percent, price_per_lb, fuel_cost, regulatory_risk)
 assumptions = {"catch": catch_percent, "price": price_per_lb, "fuel": fuel_cost, "risk": regulatory_risk}
+offers = make_offers(model["capacity"])
+selected_offer = st.session_state.get("selected_offer")
 
 with assumptions_tab:
     st.subheader(holding["species"] + " Quota Share")
@@ -487,9 +552,9 @@ with assumptions_tab:
     c1.markdown(f'<div class="rm-card"><div class="rm-label">Gross harvest basis</div><div class="rm-value">{money(holding["gross_basis"])}</div><p>{holding["estimated_pounds"]:,.0f} estimated IFQ lb</p></div>', unsafe_allow_html=True)
     c2.markdown(f'<div class="rm-card"><div class="rm-label">Quota-share records</div><div class="rm-value">{holding["record_count"]}</div><p>{holding["security_count"]} asserted-interest rows checked</p></div>', unsafe_allow_html=True)
     c3.markdown(f'<div class="rm-card"><div class="rm-label">Transfer status</div><div style="font-size:1.25rem;font-weight:700;margin-top:14px">{holding["transfer_status"]}</div><p>Public transfer file only</p></div>', unsafe_allow_html=True)
-    pdf = create_pdf(holding, model, assumptions)
+    pdf = create_pdf(holding, model, assumptions, selected_offer)
     st.download_button(
-        "Download PDF evaluation",
+        "Download complete PDF report",
         data=pdf,
         file_name=f"RightMark-NMFS-{holding['nmfs_id']}-report.pdf",
         mime="application/pdf",
@@ -516,14 +581,72 @@ with holdings_tab:
 with market_tab:
     st.subheader("Illustrative marketplace")
     st.caption("These modeled structures are comparisons—not lender offers, approvals, or applications.")
-    for offer in make_offers(model["capacity"]):
+    for index, offer in enumerate(offers):
         with st.container(border=True):
-            cols = st.columns([2.2, 1, 1, 1, 1.2])
+            cols = st.columns([2.1, 1, 1, 1, 1.2, 1.1])
             cols[0].markdown(f"### {offer['Lender']} {' · Best match' if offer['Best match'] else ''}")
             cols[1].metric("Principal", money(offer["Amount"]))
             cols[2].metric("APR", f"{offer['APR']:.1f}%")
             cols[3].metric("Term", f"{offer['Term']} mo")
             cols[4].metric("Monthly", money(offer["Monthly payment"]))
+            if cols[5].button("Review", key=f"review-{index}", width="stretch"):
+                st.session_state["selected_offer"] = offer
+                st.session_state.pop("completed_scenario", None)
+                st.rerun()
+
+    selected_offer = st.session_state.get("selected_offer")
+    if selected_offer:
+        st.divider()
+        st.markdown(f"### Review {selected_offer['Lender']}")
+        r1, r2, r3, r4 = st.columns(4)
+        r1.metric("Hypothetical principal", money(selected_offer["Amount"]))
+        r2.metric("Assumed APR", f"{selected_offer['APR']:.1f}%")
+        r3.metric("Term", f"{selected_offer['Term']} months")
+        r4.metric("Monthly payment", money(selected_offer["Monthly payment"]))
+        st.markdown(
+            '<div class="rm-note"><strong>No real offer or ownership authentication.</strong> '
+            "No lender participated. No transaction, credit pull, application, lien, or transfer occurs.</div>",
+            unsafe_allow_html=True,
+        )
+        st.markdown("#### Model checks")
+        st.markdown(
+            "✓ Complete public record matched  \n"
+            "✓ Area conversion ratios applied  \n"
+            "✓ Current public market inputs linked  \n"
+            "✓ Regulatory haircut applied  \n"
+            "✓ Structure remains below the modeled LTV cap"
+        )
+        option_pdf = create_pdf(holding, model, assumptions, selected_offer)
+        action_left, action_right = st.columns(2)
+        action_left.download_button(
+            "Download option PDF",
+            data=option_pdf,
+            file_name=f"RightMark-NMFS-{holding['nmfs_id']}-{selected_offer['Lender'].replace(' ', '-')}.pdf",
+            mime="application/pdf",
+            width="stretch",
+        )
+        if action_right.button("Complete illustrative option", type="primary", width="stretch"):
+            st.session_state["completed_scenario"] = {
+                "id": str(uuid.uuid4()),
+                "completed_at": datetime.now(timezone.utc).isoformat(),
+                "offer": selected_offer,
+            }
+            st.rerun()
+
+        completed = st.session_state.get("completed_scenario")
+        if completed:
+            st.success(
+                f"Illustrative {money(completed['offer']['Amount'])} structure modeled. "
+                "No financing occurred and no funds were disbursed."
+            )
+            st.caption(f"Scenario ID: {completed['id']}")
+            st.download_button(
+                "Download final PDF",
+                data=create_pdf(holding, model, assumptions, completed["offer"]),
+                file_name=f"RightMark-NMFS-{holding['nmfs_id']}-final-report.pdf",
+                mime="application/pdf",
+                width="stretch",
+            )
 
 with sources_tab:
     st.subheader("Evidence and disclosures")
