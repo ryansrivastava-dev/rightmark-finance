@@ -16,11 +16,12 @@ test("server-renders the complete RightMark product surface", async () => {
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
   const html = await response.text();
-  assert.match(html, /<title>RightMark Intelligence \| Understand rights\. Underwrite value\.<\/title>/i);
-  assert.match(html, /AI understands the/);
-  assert.match(html, /Open RightMark Intelligence/);
-  assert.match(html, /AI interpretation and deterministic finance/);
-  assert.match(html, /LIVE PUBLIC DATA/);
+  assert.match(html, /<title>RightMark \| Fishing quota evaluation and loan options<\/title>/i);
+  assert.match(html, /Know what your/);
+  assert.match(html, /Evaluate an NMFS ID/);
+  assert.match(html, /One asset class\. One clear financial decision path\./);
+  assert.match(html, /PDF \+ loan options/);
+  assert.doesNotMatch(html, /Intelligence workspace|Water-linked record|Sentinel|contextual AI/i);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/);
 });
 
