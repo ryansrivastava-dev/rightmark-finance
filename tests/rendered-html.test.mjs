@@ -17,7 +17,7 @@ test("server-renders the complete RightMark product surface", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
   const html = await response.text();
   assert.match(html, /<title>RightMark \| Fishing quota evaluation and loan options<\/title>/i);
-  assert.match(html, /Your quota is not a side quest/);
+  assert.match(html, /Know what your &quot;quota&quot; is worth/);
   assert.match(html, /Evaluate an NMFS ID/);
   assert.match(html, /One asset class\. One clear financial decision path\./);
   assert.match(html, /PDF \+ loan options/);
